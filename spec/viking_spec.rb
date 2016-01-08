@@ -2,7 +2,7 @@ require 'viking'
 
 describe Viking do
 
-	let(:viking) { Viking.new }
+	let(:viking) { Viking.new("First") }
 
 	describe '#initialize' do
 		it 'passing name sets name attribute' do
@@ -47,7 +47,7 @@ describe Viking do
     end
   end
 
-	describe '#drop_weapon' do 
+	describe '#drop_weapon' do
 		it 'dropping weapon leaves viking weaponless' do
 			viking.pick_up_weapon(Bow.new)
 			viking.drop_weapon
@@ -88,5 +88,34 @@ describe Viking do
       allow(viking2).to receive(:damage_with_fists)
       viking.attack(viking2)
     end
+
+		it 'Fists multiplier times strength damage' do
+			viking = Viking.new("HI", 100, 8)
+			expect(viking.send(:damage_with_fists)).to eq(2)
+		end
+
+		it 'attacking with a weapon runs damage_with_weapon' do
+			viking = Viking.new("Bob", 100, 10, Axe.new)
+			viking2 = Viking.new
+			expect(viking).to receive(:damage_with_weapon).and_return(7)
+			viking.attack(viking2)
+		end
+
+		it 'attacking with a weapon deals damage equal to the Viking\'s strength times that Weapon\'s multiplier' do
+			viking = Viking.new("Bob", 100, 10, Axe.new)
+			expect(viking.send(:damage_with_weapon)).to eq(10)
+		end
+
+		it 'attacking using a Bow without enough arrows uses Fists instead' do
+			viking = Viking.new("Bob", 100, 10, Bow.new(0))
+			viking2 = Viking.new
+			expect(viking).to receive(:damage_with_fists).and_return(99)
+			viking.attack(viking2)
+		end
+
+		it 'killing a Viking raises an error' do
+			viking2 = Viking.new("Die",10, 1)
+			expect{ viking2.receive_attack(10) }.to raise_error(Exception, "Die has Died...")
+		end
   end
 end
