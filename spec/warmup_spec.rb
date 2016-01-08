@@ -2,9 +2,9 @@ require 'warmup'
 
 describe 'warmup' do
 	let(:warmup) { Warmup.new }
-	
+
 	describe '#gets_shout' do
-		it 'will make user input uppercase' do 
+		it 'will make user input uppercase' do
 			allow(warmup).to receive(:gets).and_return('return')
 			expect(warmup.gets_shout).to eq 'RETURN'
 		end
@@ -18,16 +18,20 @@ describe 'warmup' do
 	end
 
 	describe '#calls_some_methods' do
-		it 'receives upcase method call' do
+		it 'receives upcase! method call' do
 			test_string = "hello"
 			expect(test_string).to receive(:upcase!).and_return("HELLO")
 			warmup.calls_some_methods(test_string)
 		end
 
-		# it 'receives upcase method call' do
-		# 	test_string = double(:upcase! => "hello")
-		# 	allow(test_string).to receive(:upcase!).and_return("HELLO")
-		# 	warmup.calls_some_methods(test_string)
-		# end
+		it 'receives reverse! method call' do
+			test_string = "hello"
+			expect(test_string).to receive(:reverse!).and_return("olleh")
+			warmup.calls_some_methods(test_string)
+		end
+
+		it 'returns string unrelated to one passed in' do
+			expect(warmup.calls_some_methods("hello")).to eq("I am unrelated")
+		end
 	end
 end
