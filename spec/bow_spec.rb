@@ -14,4 +14,16 @@ describe Bow do
       expect(bow.arrows).to eq(99)
     end
   end
+
+  describe '#use' do
+    it 'using a bow reduces arrows by 1' do
+    	bow.use
+    	expect(bow.arrows).to eq(9)
+    end
+  	
+  	it 'returns error if arrow count is 0' do
+  		new_bow = Bow.new(0)
+  		expect{new_bow.use}.to raise_error(RuntimeError)
+  	end
+  end
 end
