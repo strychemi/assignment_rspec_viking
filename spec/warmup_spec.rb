@@ -26,7 +26,7 @@ describe 'warmup' do
 
 		it 'receives reverse! method call' do
 			test_string = "hello"
-			expect(test_string).to receive(:reverse!).and_return("olleh")
+			expect(test_string).to receive(:reverse!)
 			warmup.calls_some_methods(test_string)
 		end
 

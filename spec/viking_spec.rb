@@ -85,7 +85,7 @@ describe Viking do
 
     it 'attacking with no weapon uses fists' do
       viking2 = Viking.new
-      allow(viking).to receive(:damage_with_fists)
+      allow(viking2).to receive(:damage_with_fists)
       viking.attack(viking2)
     end
   end
