@@ -17,7 +17,7 @@ describe Viking do
 
 		it 'health cannot be overwritten after being set' do
 			viking = Viking.new(name = "bob" , health = 50)
-			expect{ viking.health = 99 }.to raise_error
+			expect{ viking.health = 99 }.to raise_error(NoMethodError)
 		end
 
 		it 'viking weapon starts out nil by default' do
@@ -35,7 +35,7 @@ describe Viking do
 		end
 
 		it 'picking up non-weapon raises error' do
-			expect { viking.pick_up_weapon('banana') }.to raise_error
+			expect { viking.pick_up_weapon('banana') }.to raise_error(RuntimeError)
 		end
 
     it 'picking up new weapon overwrites existing weapon'  do
@@ -43,7 +43,7 @@ describe Viking do
       axe = Axe.new
       viking.pick_up_weapon(bow)
       viking.pick_up_weapon(axe)
-      expect(viking.weapon).to eq(axe)
+      expect(viking.weapon).to be_an_instance_of(Axe)
     end
   end
 
@@ -57,9 +57,7 @@ describe Viking do
 
   describe '#receive_attack' do
     it 'reduces viking\'s health by specified amount' do
-      damage = 10
-      viking.receive_attack(damage)
-      expect(viking.health).to eq(90)
+      expect{viking.receive_attack(10)}.to change(viking, :health).by(-10)
     end
 
     it 'calls take_damage method' do
@@ -70,14 +68,11 @@ describe Viking do
 
   describe '#attack' do
     it 'attacking another viking reduces target\'s health' do
-      viking.pick_up_weapon(Bow.new)
       viking2 = Viking.new
-      viking.attack(viking2)
-      expect(viking2.health).to eq(80)
+      expect{viking.attack(viking2)}.to change(viking2, :health).by(-2.5)
     end
 
     it 'attacking another viking calls take_damage method' do
-      viking.pick_up_weapon(Bow.new)
       viking2 = Viking.new
       expect(viking2).to receive(:take_damage)
       viking.attack(viking2)
@@ -85,13 +80,14 @@ describe Viking do
 
     it 'attacking with no weapon uses fists' do
       viking2 = Viking.new
-      allow(viking2).to receive(:damage_with_fists)
+      expect(viking).to receive(:damage_with_fists).and_return(10)
       viking.attack(viking2)
     end
 
 		it 'Fists multiplier times strength damage' do
-			viking = Viking.new("HI", 100, 8)
-			expect(viking.send(:damage_with_fists)).to eq(2)
+			viking2 = Viking.new
+			expected_damage = Fists.new.use * viking.strength
+			expect{viking.attack(viking2)}.to change(viking2, :health).by(-expected_damage)
 		end
 
 		it 'attacking with a weapon runs damage_with_weapon' do
@@ -102,8 +98,12 @@ describe Viking do
 		end
 
 		it 'attacking with a weapon deals damage equal to the Viking\'s strength times that Weapon\'s multiplier' do
+			#weap_double = instance_double("Axe", use: 100 )
 			viking = Viking.new("Bob", 100, 10, Axe.new)
-			expect(viking.send(:damage_with_weapon)).to eq(10)
+			victim = Viking.new
+			expected_damage = viking.weapon.use * viking.strength
+			expect{viking.attack(victim)}.to change(victim, :health).by(-expected_damage)
+
 		end
 
 		it 'attacking using a Bow without enough arrows uses Fists instead' do
